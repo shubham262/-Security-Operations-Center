@@ -25,3 +25,12 @@ export const fetchStats = async () => {
 		throw error;
 	}
 };
+
+export const updateAlert = async (id, payload) => {
+	try {
+		const { data } = await api.patch(`/api/alert/${id}`, payload);
+		return data;
+	} catch (error) {
+		throw error;
+	}
+};

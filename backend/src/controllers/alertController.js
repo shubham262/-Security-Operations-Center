@@ -99,6 +99,47 @@ export const getAlertById = async (req, res) => {
 	}
 };
 
+export const updateAlertById = async (req, res) => {
+	try {
+		const { id } = req.params || {};
+		const updates = req.body;
+
+		if (!id) {
+			return res.status(400).json({ error: "Invalid alert ID format" });
+		}
+		const allowedUpdates = ["status", "severity", "assignee", "description"];
+		const filteredUpdates = Object.keys(updates)
+			.filter((key) => allowedUpdates.includes(key))
+			.reduce((obj, key) => {
+				obj[key] = updates[key];
+				return obj;
+			}, {});
+
+		if (Object.keys(filteredUpdates).length === 0) {
+			return res.status(400).json({ error: "No valid update fields provided" });
+		}
+		const alert = await Alert.findByIdAndUpdate(id, filteredUpdates, {
+			new: true,
+			runValidators: true,
+		}).populate("assignee", "name email");
+
+		if (!alert) {
+			return res.status(404).json({ error: "Alert not found" });
+		}
+
+		return res.status(200).json({
+			success: true,
+			message: "Alert updated successfully",
+			data: alert,
+		});
+	} catch (error) {
+		console.error("Error fetching alert details:", error);
+		return res
+			.status(500)
+			.json({ error: "Internal server error while fetching alert details" });
+	}
+};
+
 export const getAlertStats = async (req, res) => {
 	try {
 		const oneDayAgo = moment().subtract(24, "hours").toDate();
