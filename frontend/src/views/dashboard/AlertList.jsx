@@ -26,10 +26,14 @@ import {
 	getStatusColor,
 	getSeverityStyles,
 } from "@/helper/constant";
+import { usePathname, useSearchParams, useRouter } from "next/navigation";
 
 const { Option } = Select;
 
 const AlertList = () => {
+	const router = useRouter();
+	const pathname = usePathname();
+	const searchParams = useSearchParams();
 	const [info, setInfo] = useState({
 		loading: true,
 		refreshLoading: false,
@@ -38,14 +42,20 @@ const AlertList = () => {
 	});
 
 	const [params, setParams] = useState({
-		page: 1,
-		limit: 15,
-		search: "",
-		severity: [],
-		status: [],
-		category: [],
-		sortBy: "timestamp",
-		sortOrder: "desc",
+		page: Number(searchParams.get("page")) || 1,
+		limit: Number(searchParams.get("limit")) || 15,
+		search: searchParams.get("search") || "",
+		severity: searchParams.get("severity")
+			? searchParams.get("severity").split(",")
+			: [],
+		status: searchParams.get("status")
+			? searchParams.get("status").split(",")
+			: [],
+		category: searchParams.get("category")
+			? searchParams.get("category").split(",")
+			: [],
+		sortBy: searchParams.get("sortBy") || "timestamp",
+		sortOrder: searchParams.get("sortOrder") || "desc",
 	});
 
 	useEffect(() => {
@@ -55,6 +65,26 @@ const AlertList = () => {
 
 		return () => clearTimeout(timeout);
 	}, [params]);
+
+	useEffect(() => {
+		const query = new URLSearchParams();
+
+		Object.entries(params).forEach(([key, value]) => {
+			if (
+				value !== undefined &&
+				value !== null &&
+				value !== "" &&
+				!(Array.isArray(value) && value.length === 0)
+			) {
+				query.set(
+					key,
+					Array.isArray(value) ? value.join(",") : value.toString()
+				);
+			}
+		});
+
+		router.replace(`${pathname}?${query.toString()}`);
+	}, [params, router, pathname]);
 
 	const getAllAlerts = useCallback(async () => {
 		try {
@@ -137,6 +167,7 @@ const AlertList = () => {
 							maxTagCount="responsive"
 							onChange={(val) => handleFilterChange("severity", val)}
 							options={severityOptions}
+							value={params?.severity}
 						/>
 						<Select
 							mode="multiple"
@@ -150,6 +181,7 @@ const AlertList = () => {
 							maxTagCount="responsive"
 							onChange={(val) => handleFilterChange("category", val)}
 							options={categoryOptions}
+							value={params?.category}
 						/>
 						<Select
 							mode="multiple"
@@ -163,6 +195,7 @@ const AlertList = () => {
 							maxTagCount="responsive"
 							onChange={(val) => handleFilterChange("status", val)}
 							options={statusOptions}
+							value={params?.status}
 						/>
 					</div>
 				</div>
@@ -318,7 +351,7 @@ const AlertList = () => {
 
 			{/* Pagination */}
 			{info?.totalRecords > 0 && (
-				<div className="flex justify-between items-center py-2 px-1">
+				<div className="flex justify-between items-center py-2 px-1 mb-4">
 					<span className="hidden sm:block text-[13px] text-slate-500 font-medium">
 						Displaying{" "}
 						{Math.min((params.page - 1) * params.limit + 1, info.totalRecords)}{" "}
@@ -326,12 +359,11 @@ const AlertList = () => {
 						{info.totalRecords}
 					</span>
 					<Pagination
-						size="small"
 						current={params.page}
 						pageSize={params.limit}
 						total={info?.totalRecords}
 						onChange={handlePageChange}
-						showSizeChanger={false}
+						showSizeChanger={true}
 					/>
 				</div>
 			)}
