@@ -74,3 +74,26 @@ export const getStatusColor = (status) => {
 			return "default";
 	}
 };
+
+export const severityDataMapper = {
+	critical: "#ef4444",
+	high: "#f97316",
+	medium: "#3b82f6",
+	low: "#94a3b8",
+	info: "#06b6d4",
+};
+export const categoryDataMapper = {
+	phishing: "#6366f1",
+	suspicious_login: "#8b5cf6",
+	policy_violation: "#a855f7",
+	malware: "#d946ef",
+	unauthorized_access: "#ec4899",
+	data_exfiltration: "#f43f5e",
+};
+
+export const statusDataMapper = {
+	new: "#3b82f6",
+	investigating: "#eab308",
+	resolved: "#22c55e",
+	false_positive: "#64748b",
+};

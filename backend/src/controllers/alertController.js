@@ -1,4 +1,6 @@
+import { formatName } from "../helpers/index.js";
 import db from "../models/index.js";
+import moment from "moment";
 const { Alert } = db;
 
 export const getAlerts = async (req, res) => {
@@ -94,5 +96,75 @@ export const getAlertById = async (req, res) => {
 		return res
 			.status(500)
 			.json({ error: "Internal server error while fetching alert details" });
+	}
+};
+
+export const getAlertStats = async (req, res) => {
+	try {
+		const oneDayAgo = moment().subtract(24, "hours").toDate();
+
+		const [aggregationResult] = await Alert.aggregate([
+			{
+				$facet: {
+					severityStats: [
+						{ $group: { _id: "$severity", count: { $sum: 1 } } },
+						{ $sort: { count: -1 } },
+					],
+					categoryStats: [
+						{ $group: { _id: "$category", count: { $sum: 1 } } },
+						{ $sort: { count: -1 } },
+					],
+					statusStats: [
+						{ $group: { _id: "$status", count: { $sum: 1 } } },
+						{ $sort: { count: -1 } },
+					],
+					totalOpen: [
+						{ $match: { status: { $in: ["new", "investigating"] } } },
+						{ $count: "count" },
+					],
+					resolved24h: [
+						{ $match: { status: "resolved", timestamp: { $gte: oneDayAgo } } },
+						{ $count: "count" },
+					],
+				},
+			},
+		]);
+
+		const formatForCharts = (data) =>
+			data.map((item) => ({
+				id: item._id,
+				name: formatName(item._id),
+				value: item.count,
+			}));
+
+		const severityData = formatForCharts(aggregationResult.severityStats);
+
+		const criticalCount =
+			severityData.find((s) => s.id === "critical")?.value || 0;
+		const highCount = severityData.find((s) => s.id === "high")?.value || 0;
+		const openCount = aggregationResult.totalOpen[0]?.count || 0;
+		const resolved24hCount = aggregationResult.resolved24h[0]?.count || 0;
+
+		return res.status(200).json({
+			success: true,
+			data: {
+				charts: {
+					severity: severityData,
+					category: formatForCharts(aggregationResult.categoryStats),
+					status: formatForCharts(aggregationResult.statusStats),
+				},
+				kpis: {
+					totalOpen: openCount,
+					critical: criticalCount,
+					high: highCount,
+					resolved24h: resolved24hCount,
+				},
+			},
+		});
+	} catch (error) {
+		console.error("Error fetching overview stats:", error);
+		return res
+			.status(500)
+			.json({ success: false, error: "Failed to fetch dashboard statistics" });
 	}
 };

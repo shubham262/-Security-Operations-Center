@@ -7,3 +7,12 @@ export const fetchAllAlerts = async (params) => {
 		throw error;
 	}
 };
+
+export const fetchStats = async () => {
+	try {
+		const { data } = await api.get(`/api/alert/alert-stats`);
+		return data;
+	} catch (error) {
+		throw error;
+	}
+};

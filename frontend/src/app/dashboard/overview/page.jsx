@@ -1,7 +1,10 @@
-import React from "react";
+import OverView from "@/views/dashboard/OverView";
 
-const page = () => {
-	return <div>overview</div>;
+export const metadata = {
+	title: "Alert Overview",
+	description: "Overview Insights",
 };
 
-export default page;
+export default function Home() {
+	return <OverView />;
+}

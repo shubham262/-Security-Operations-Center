@@ -5,7 +5,7 @@ import Logo from "../Logo";
 import { usePathname, useRouter } from "next/navigation";
 import { authClient } from "@/config/auth";
 const navLinks = [
-	{ href: "/dashboard/overview", icon: FiActivity, label: "Dashboard" },
+	{ href: "/dashboard/overview", icon: FiActivity, label: "Overview" },
 	{ href: "/dashboard/alerts", icon: FiList, label: "Alerts " },
 ];
 const SidebarContent = ({}) => {
