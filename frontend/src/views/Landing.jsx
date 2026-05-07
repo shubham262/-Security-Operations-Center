@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useCallback } from "react";
 import { Button, Card, Typography } from "antd";
 import {
 	FiShield,
@@ -8,24 +8,27 @@ import {
 	FiMaximize,
 	FiArrowRight,
 } from "react-icons/fi";
+import Logo from "@/components/Logo";
+import { useRouter } from "next/navigation";
 
 const { Title, Paragraph } = Typography;
 
 const Landing = () => {
+	const router = useRouter();
+	const handleLogin = useCallback(() => {
+		return router.push("/signin");
+	}, [router]);
 	return (
 		<div className="flex flex-col min-h-screen bg-white text-gray-800 font-sans items-center overflow-x-hidden">
 			{/* Navigation Bar - Constrained Width */}
 			<nav className="flex justify-between items-center py-5 px-6 w-full max-w-6xl border-b border-gray-100">
-				<div className="flex items-center space-x-2 text-blue-600">
-					<FiShield size={28} />
-					<span className="text-xl font-bold tracking-tight text-gray-900">
-						SOC<span className="text-blue-600">Triage</span>
-					</span>
-				</div>
+				<Logo />
+
 				<div className="flex items-center space-x-4">
 					<Button
 						type="primary"
 						className="bg-blue-600 flex items-center space-x-2 h-10 px-4 rounded-lg"
+						onClick={handleLogin}
 					>
 						<span className="font-medium">Analyst Login</span>
 						<FiArrowRight />
