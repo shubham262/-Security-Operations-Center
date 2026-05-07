@@ -289,12 +289,23 @@ const AlertList = () => {
 									</div>
 
 									{/* 5. Timestamp (Using moment) */}
-									<div className="flex items-center w-full lg:w-28 shrink-0 text-[12px] text-slate-500 font-medium">
+									<div className="flex items-start w-full lg:w-32 shrink-0 text-[12px] text-slate-500 font-medium">
+										<FiClock className="mr-1.5 mt-0.5 shrink-0 opacity-70" />
+										<div className="flex flex-col min-w-0">
+											<span className="truncate text-slate-700">
+												{moment(alert.timestamp).fromNow()}
+											</span>
+											<span className="text-[10px] text-slate-400 truncate">
+												{moment(alert.timestamp).format("MMM D, HH:mm:ss")}
+											</span>
+										</div>
+									</div>
+									{/* <div className="flex items-center w-full lg:w-28 shrink-0 text-[12px] text-slate-500 font-medium">
 										<FiClock className="mr-1.5 shrink-0 opacity-70" />
 										<span className="truncate">
 											{moment(alert.timestamp).fromNow()}
 										</span>
-									</div>
+									</div> */}
 
 									{/* 6. Action Arrow */}
 									<div className="hidden lg:flex justify-end w-10 shrink-0 text-slate-300 group-hover:text-blue-500">
