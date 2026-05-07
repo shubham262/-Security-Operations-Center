@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import { Button, Card, Typography } from "antd";
 import {
 	FiShield,
@@ -10,17 +10,27 @@ import {
 } from "react-icons/fi";
 import Logo from "@/components/Logo";
 import { useRouter } from "next/navigation";
+import { authClient } from "@/config/auth";
 
 const { Title, Paragraph } = Typography;
 
 const Landing = () => {
 	const router = useRouter();
+	const { data, isPending, refetch } = authClient.useSession();
 	const handleLogin = useCallback(() => {
 		return router.push("/signin");
 	}, [router]);
+
+	const handleGotoDashboard = useCallback(() => {
+		return router.push("/dashboard/overview");
+	}, [router]);
+
+	const handleGetStarted = useCallback(() => {
+		return router.push("/signup");
+	}, [router]);
+
 	return (
 		<div className="flex flex-col min-h-screen bg-white text-gray-800 font-sans items-center overflow-x-hidden">
-			{/* Navigation Bar - Constrained Width */}
 			<nav className="flex justify-between items-center py-5 px-6 w-full max-w-6xl border-b border-gray-100">
 				<Logo />
 
@@ -59,19 +69,29 @@ const Landing = () => {
 						drill-down views.
 					</Paragraph>
 
-					{/* Responsive Buttons */}
 					<div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4 mt-10 w-full sm:w-auto">
-						<Button
-							type="primary"
-							size="large"
-							className="bg-blue-600 h-14 px-8 text-lg rounded-lg w-full sm:w-auto font-medium shadow-md shadow-blue-600/20"
-						>
-							Go to Dashboard
-						</Button>
+						{data?.user ? (
+							<Button
+								onClick={handleGotoDashboard}
+								type="primary"
+								size="large"
+								className="bg-blue-600 h-14 px-8 text-lg rounded-lg w-full sm:w-auto font-medium shadow-md shadow-blue-600/20"
+							>
+								Go to Dashboard
+							</Button>
+						) : (
+							<Button
+								onClick={handleGetStarted}
+								type="primary"
+								size="large"
+								className="bg-blue-600 h-14 px-8 text-lg rounded-lg w-full sm:w-auto font-medium shadow-md shadow-blue-600/20"
+							>
+								Get started
+							</Button>
+						)}
 					</div>
 				</section>
 
-				{/* Abstract UI Preview - Centered & Responsive */}
 				<section className="flex flex-col items-center w-full max-w-4xl px-6 pb-24">
 					<Card
 						className="w-full shadow-2xl border-0 rounded-2xl overflow-hidden bg-white ring-1 ring-gray-100"
@@ -129,7 +149,6 @@ const Landing = () => {
 					</Card>
 				</section>
 
-				{/* Features Section */}
 				<section className="flex flex-col w-full max-w-5xl px-6 pb-24 items-center">
 					<div className="text-center mb-12 max-w-2xl">
 						<Title level={2} className="!text-gray-900 !font-bold !mb-4">
@@ -142,7 +161,6 @@ const Landing = () => {
 					</div>
 
 					<div className="flex flex-col md:flex-row w-full space-y-6 md:space-y-0 md:space-x-6 items-stretch justify-center gap-4">
-						{/* Feature 1 */}
 						<Card
 							className="flex-1 shadow-sm hover:shadow-md transition-shadow border-gray-100 rounded-xl"
 							variant="outlined"
@@ -162,7 +180,6 @@ const Landing = () => {
 							</div>
 						</Card>
 
-						{/* Feature 2 */}
 						<Card
 							className="flex-1 shadow-sm hover:shadow-md transition-shadow border-gray-100 rounded-xl"
 							variant="outlined"

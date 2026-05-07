@@ -1,4 +1,4 @@
-import Login from "@/views/Login";
+import Login from "@/views/auth/Login";
 
 export const metadata = {
 	title: "Sign In to get started",

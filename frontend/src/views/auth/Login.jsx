@@ -39,8 +39,8 @@ const Login = () => {
 			const { data } = await authClient.signIn.email(payload);
 			const { user } = data;
 			localStorage.setItem("user", JSON.stringify(user));
-			message.success("Login successful");
-			return router.push("/");
+
+			return router.push("/dashboard/overview");
 		} catch (error) {
 			console.log("error==>handlSubmit", error);
 			message.error("Invalid credentials or something went wrong");
