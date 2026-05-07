@@ -6,24 +6,42 @@ export const getAlerts = async (req, res) => {
 		const {
 			page = 1,
 			limit = 50,
-			severity, //"critical", "high", "medium", "low", "info"
-			status, //"new", "investigating", "resolved", "false_positive"
-			category, //malware,phishing,unauthorized_access,data_exfiltration,policy_violation,suspicious_login,
-			sortBy = "timestamp", //timestamp,severity
-			sortOrder = "desc", // asc, desc
+			sortBy = "timestamp",
+			sortOrder = "desc",
 			search,
 		} = req.query;
 
 		const query = {};
 
-		if (severity) query.severity = { $in: severity.split(",") };
-		if (status) query.status = { $in: status.split(",") };
-		if (category) query.category = { $in: category.split(",") };
+		const severityParam = req.query.severity || req.query["severity[]"];
+		const statusParam = req.query.status || req.query["status[]"];
+		const categoryParam = req.query.category || req.query["category[]"];
+
+		if (severityParam) {
+			query.severity = {
+				$in: Array.isArray(severityParam)
+					? severityParam
+					: severityParam.split(","),
+			};
+		}
+		if (statusParam) {
+			query.status = {
+				$in: Array.isArray(statusParam) ? statusParam : statusParam.split(","),
+			};
+		}
+		if (categoryParam) {
+			query.category = {
+				$in: Array.isArray(categoryParam)
+					? categoryParam
+					: categoryParam.split(","),
+			};
+		}
 
 		if (search) {
 			query.$or = [
 				{ title: { $regex: search, $options: "i" } },
 				{ affected_asset: { $regex: search, $options: "i" } },
+				{ description: { $regex: search, $options: "i" } },
 			];
 		}
 
@@ -41,7 +59,6 @@ export const getAlerts = async (req, res) => {
 
 		const total = await Alert.countDocuments(query);
 
-		// 4. Return standard paginated response
 		return res.status(200).json({
 			data: alerts,
 			meta: {

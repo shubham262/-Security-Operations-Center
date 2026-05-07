@@ -3,26 +3,28 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
-import { Table, Input, Select, Button, Tag, Space, Card, Dropdown } from "antd";
+import { Input, Select, Button, Tag, Space, Pagination } from "antd";
 import {
 	FiSearch,
 	FiRefreshCw,
 	FiChevronRight,
-	FiServer,
+	FiTerminal,
 	FiShield,
-	FiFilter,
 	FiArrowDown,
 	FiArrowUp,
+	FiClock,
+	FiFilter,
+	FiUser,
 } from "react-icons/fi";
 import Link from "next/link";
+import moment from "moment"; // Added moment.js
 import { fetchAllAlerts } from "@/service/alerts";
-import { refresh } from "next/cache";
 import {
 	categoryOptions,
 	severityOptions,
 	statusOptions,
-	severityStyles,
-	statusStyles,
+	getStatusColor,
+	getSeverityStyles,
 } from "@/helper/constant";
 
 const { Option } = Select;
@@ -32,12 +34,12 @@ const AlertList = () => {
 		loading: true,
 		refreshLoading: false,
 		totalRecords: 0,
-		data: null,
+		data: [],
 	});
 
 	const [params, setParams] = useState({
 		page: 1,
-		limit: 10,
+		limit: 15,
 		search: "",
 		severity: [],
 		status: [],
@@ -52,27 +54,19 @@ const AlertList = () => {
 
 	const getAllAlerts = useCallback(async () => {
 		try {
-			if (info?.refreshLoading) {
-				return;
-			}
+			if (info?.refreshLoading) return;
 			setInfo((prev) => ({ ...prev, loading: true, refreshLoading: true }));
-			const paramsPayload = {
-				...params,
-			};
-			const { data = [], meta = {} } = await fetchAllAlerts(paramsPayload);
+			const { data = [], meta = {} } = await fetchAllAlerts({ ...params });
 			setInfo((prev) => ({
 				...prev,
 				data,
-				totalRecords: meta?.total,
+				totalRecords: meta?.total || 0,
 				refreshLoading: false,
 			}));
 		} catch (error) {
+			console.error("Failed to fetch alerts:", error);
 		} finally {
-			setInfo((prev) => ({
-				...prev,
-				loading: false,
-				refreshLoading: false,
-			}));
+			setInfo((prev) => ({ ...prev, loading: false, refreshLoading: false }));
 		}
 	}, [params]);
 
@@ -80,180 +74,62 @@ const AlertList = () => {
 		setParams((prev) => ({ ...prev, [key]: value, page: 1 }));
 	};
 
-	const handleTableChange = (pagination) => {
-		setParams((prev) => ({
-			...prev,
-			page: pagination.current,
-			limit: pagination.pageSize,
-		}));
+	const handlePageChange = (page, pageSize) => {
+		setParams((prev) => ({ ...prev, page, limit: pageSize }));
 	};
 
-	const columns = [
-		{
-			title: "Severity",
-			dataIndex: "severity",
-			key: "severity",
-			width: 100,
-			render: (sev) => (
-				<Tag
-					color={severityStyles[sev]?.color}
-					className="m-0 text-xs font-semibold border-0 px-2 py-0.5 rounded shadow-sm"
-				>
-					{severityStyles[sev]?.label}
-				</Tag>
-			),
-		},
-		{
-			title: "Alert Details",
-			key: "details",
-			width: 250,
-			render: (_, record) => (
-				<div className="flex flex-col">
-					<span className="font-medium text-gray-900">{record.title}</span>
-					<span className="text-xs text-gray-500 capitalize">
-						{record.category.replace(/_/g, " ")}
-					</span>
-				</div>
-			),
-		},
-		{
-			title: "Affected Asset",
-			dataIndex: "affected_asset",
-			key: "asset",
-			width: 200,
-			render: (asset) => (
-				<div className="flex items-center text-sm text-gray-600">
-					<FiServer className="mr-2 opacity-60" />
-					<span className="truncate">{asset}</span>
-				</div>
-			),
-		},
-		{
-			title: "Source",
-			dataIndex: "source",
-			key: "source",
-			width: 140,
-			render: (src) => <span className="text-sm text-gray-500">{src}</span>,
-		},
-		{
-			title: "Status",
-			dataIndex: "status",
-			key: "status",
-			width: 130,
-			render: (status) => (
-				<Tag
-					color={statusStyles[status]}
-					className="capitalize m-0 font-medium"
-				>
-					{status.replace(/_/g, " ")}
-				</Tag>
-			),
-		},
-		{
-			title: "Detected",
-			dataIndex: "timestamp",
-			key: "timestamp",
-			width: 130,
-			render: (ts) => (
-				<span className="text-sm text-gray-500 whitespace-nowrap">{ts}</span>
-			),
-		},
-		{
-			title: "",
-			key: "action",
-			width: 60,
-			fixed: "right", // Keeps the arrow visible when scrolling horizontally
-			align: "center",
-			render: (_, record) => (
-				<Link href={`/dashboard/alerts/${record._id}`}>
-					<Button
-						type="text"
-						icon={
-							<FiChevronRight
-								className="text-gray-400 hover:text-blue-600"
-								size={18}
-							/>
-						}
-					/>
-				</Link>
-			),
-		},
-	];
-
 	return (
-		<div className="flex flex-col gap-6 max-w-[100vw]">
-			<div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-				<div>
-					<h1 className="text-2xl font-semibold text-gray-900 flex items-center gap-2 m-0">
-						<FiShield className="text-blue-600" /> Triage Queue
-					</h1>
-					<p className="text-gray-500 text-sm mt-1 mb-0">
-						Investigate and respond to security events.
-					</p>
+		<div className="flex flex-col gap-5 max-w-[100vw] font-sans antialiased text-slate-800">
+			{/* Header */}
+			<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
+				<div className="flex items-center gap-3">
+					<div className="w-8 h-8 bg-slate-900 text-white rounded flex items-center justify-center">
+						<FiShield size={16} />
+					</div>
+					<div>
+						<h1 className="text-lg font-semibold text-slate-900 m-0 leading-none">
+							Alert Triage Queue
+						</h1>
+						<span className="text-[13px] text-slate-500 font-medium">
+							Real-time threat monitoring
+						</span>
+					</div>
 				</div>
 				<Button
-					icon={
-						<FiRefreshCw
-							className={info?.refreshLoading ? "animate-spin" : ""}
-						/>
-					}
+					size="small"
+					className="text-[13px] font-medium border-slate-300 text-slate-600 shadow-sm rounded flex items-center gap-1.5"
 					onClick={getAllAlerts}
 				>
+					<FiRefreshCw
+						className={info?.refreshLoading ? "animate-spin" : ""}
+						size={12}
+					/>
 					Refresh
 				</Button>
 			</div>
 
-			{/* Comprehensive Filter Bar - Clean Enterprise Look */}
-			<Card
-				className="shadow-sm border-gray-200"
-				styles={{ body: { padding: "16px" } }}
-			>
-				<div className="flex flex-col gap-4">
-					<div className="flex flex-col md:flex-row gap-4 justify-between">
-						<Input
-							size="middle"
-							placeholder="Search title or asset..."
-							prefix={<FiSearch className="text-gray-400" />}
-							className="md:max-w-md"
-							allowClear
-							value={params.search}
-							onChange={(e) => handleFilterChange("search", e.target.value)}
-						/>
+			{/* Command Bar (Filters) */}
+			<div className="bg-slate-50 border border-slate-200 rounded-md p-3 flex flex-col gap-3">
+				<div className="flex flex-col lg:flex-row gap-3">
+					<Input
+						placeholder="Search title, IP, or hostname..."
+						prefix={<FiSearch className="text-slate-400 mr-1" />}
+						className="lg:max-w-md rounded text-[13px] border-slate-300 hover:border-blue-400 focus:border-blue-500"
+						allowClear
+						value={params.search}
+						onChange={(e) => handleFilterChange("search", e.target.value)}
+					/>
 
-						<Space className="w-full md:w-auto flex-wrap">
-							<span className="text-sm text-gray-500">Sort by:</span>
-							<Select
-								size="middle"
-								value={params.sortBy}
-								onChange={(val) => handleFilterChange("sortBy", val)}
-								className="w-32"
-							>
-								<Option value="timestamp">Timestamp</Option>
-								<Option value="severity">Severity</Option>
-							</Select>
-							<Select
-								size="middle"
-								value={params.sortOrder}
-								onChange={(val) => handleFilterChange("sortOrder", val)}
-								className="w-24"
-							>
-								<Option value="desc">
-									Desc <FiArrowDown className="inline text-xs ml-1" />
-								</Option>
-								<Option value="asc">
-									Asc <FiArrowUp className="inline text-xs ml-1" />
-								</Option>
-							</Select>
-						</Space>
-					</div>
-
-					{/* Bottom Row: Multi-Select Filters */}
-					<div className="flex flex-col md:flex-row gap-4">
+					<div className="flex flex-1 flex-col sm:flex-row gap-3">
 						<Select
 							mode="multiple"
 							allowClear
-							placeholder="All Severities"
-							className="flex-1 min-w-[150px]"
+							placeholder={
+								<span className="text-[13px]">
+									<FiFilter className="inline mr-1" /> Severity
+								</span>
+							}
+							className="flex-1 [&_.ant-select-selector]:rounded [&_.ant-select-selection-item]:text-[12px]"
 							maxTagCount="responsive"
 							onChange={(val) => handleFilterChange("severity", val)}
 							options={severityOptions}
@@ -261,8 +137,12 @@ const AlertList = () => {
 						<Select
 							mode="multiple"
 							allowClear
-							placeholder="All Categories"
-							className="flex-1 min-w-[150px]"
+							placeholder={
+								<span className="text-[13px]">
+									<FiFilter className="inline mr-1" /> Category
+								</span>
+							}
+							className="flex-1 [&_.ant-select-selector]:rounded [&_.ant-select-selection-item]:text-[12px]"
 							maxTagCount="responsive"
 							onChange={(val) => handleFilterChange("category", val)}
 							options={categoryOptions}
@@ -270,36 +150,182 @@ const AlertList = () => {
 						<Select
 							mode="multiple"
 							allowClear
-							placeholder="All Statuses"
-							className="flex-1 min-w-[150px]"
+							placeholder={
+								<span className="text-[13px]">
+									<FiFilter className="inline mr-1" /> Status
+								</span>
+							}
+							className="flex-1 [&_.ant-select-selector]:rounded [&_.ant-select-selection-item]:text-[12px]"
 							maxTagCount="responsive"
 							onChange={(val) => handleFilterChange("status", val)}
 							options={statusOptions}
 						/>
 					</div>
 				</div>
-			</Card>
 
-			<div className="bg-white border border-gray-200 rounded-xl shadow-sm">
-				<Table
-					columns={columns}
-					dataSource={info?.data}
-					loading={info?.loading}
-					onChange={handleTableChange}
-					pagination={{
-						current: params.page,
-						pageSize: params.limit,
-						total: info?.totalRecords,
-						showSizeChanger: true,
-						showTotal: (total) => `Total ${total} alerts`,
-						className: "px-4 pb-4 mt-4",
-					}}
-					rowKey={"_id"}
-					scroll={{ x: 1000 }}
-					rowClassName="cursor-pointer hover:bg-slate-50 transition-colors"
-					size="middle"
-				/>
+				<div className="flex justify-end items-center gap-2 text-[12px] text-slate-500 font-medium">
+					<span>Sort:</span>
+					<Select
+						size="small"
+						value={params.sortBy}
+						onChange={(val) => handleFilterChange("sortBy", val)}
+						className="w-28 [&_.ant-select-selector]:rounded-sm"
+					>
+						<Option value="timestamp">Timestamp</Option>
+						<Option value="severity">Severity</Option>
+					</Select>
+					<Select
+						size="small"
+						value={params.sortOrder}
+						onChange={(val) => handleFilterChange("sortOrder", val)}
+						className="w-20 [&_.ant-select-selector]:rounded-sm"
+					>
+						<Option value="desc">
+							Desc <FiArrowDown className="inline text-[10px]" />
+						</Option>
+						<Option value="asc">
+							Asc <FiArrowUp className="inline text-[10px]" />
+						</Option>
+					</Select>
+				</div>
 			</div>
+
+			{/* High-Density Data List */}
+			<div className="flex flex-col border border-slate-200 rounded-md bg-white">
+				{/* List Header (Desktop Only) */}
+				<div className="hidden lg:flex items-center px-4 py-2 bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+					<div className="w-24 shrink-0">Severity</div>
+					<div className="flex-1 min-w-0 pr-4">Alert Details</div>
+					<div className="w-48 shrink-0">Affected Asset</div>
+					<div className="w-36 shrink-0">Status</div>
+					<div className="w-28 shrink-0">Detected</div>
+					<div className="w-10 shrink-0"></div>
+				</div>
+
+				{info?.loading ? (
+					<div className="flex items-center justify-center h-40 text-[13px] text-slate-500">
+						<FiRefreshCw className="animate-spin mr-2" /> Fetching latest
+						events...
+					</div>
+				) : info?.data?.length === 0 ? (
+					<div className="flex flex-col items-center justify-center h-40 text-slate-400">
+						<span className="text-[13px] font-medium">
+							No alerts match the current filters.
+						</span>
+					</div>
+				) : (
+					<div className="flex flex-col divide-y divide-slate-100">
+						{info?.data?.map((alert) => {
+							const sevStyle = getSeverityStyles(alert.severity);
+							return (
+								<Link
+									href={`/dashboard/alerts/${alert._id}`}
+									key={alert._id}
+									className={`flex flex-col lg:flex-row lg:items-center px-4 py-3 bg-white hover:bg-slate-50 border-l-[3px] transition-colors cursor-pointer group ${sevStyle.border}`}
+								>
+									{/* 1. Severity */}
+									<div className="flex items-center w-full lg:w-24 shrink-0 mb-2 lg:mb-0">
+										<div
+											className={`w-2 h-2 rounded-full ${sevStyle.dot} mr-2`}
+										></div>
+										<span
+											className={`text-[12px] font-bold uppercase tracking-wider ${sevStyle.text}`}
+										>
+											{alert.severity}
+										</span>
+									</div>
+
+									{/* 2. Title, Category & Description */}
+									<div className="flex flex-col flex-1 min-w-0 mb-3 lg:mb-0 pr-6">
+										<span className="text-[14px] font-semibold text-slate-900 group-hover:text-blue-600 transition-colors truncate">
+											{alert.title}
+										</span>
+										<div className="flex items-center gap-2 mt-0.5">
+											<span className="text-[12px] text-slate-500 capitalize shrink-0">
+												{alert.category?.replace(/_/g, " ")} • src:{" "}
+												{alert.source}
+											</span>
+										</div>
+										{/* Muted Description added here */}
+										<span className="text-[11px] text-slate-400 truncate mt-1 max-w-full">
+											{alert.description || "No further details provided."}
+										</span>
+									</div>
+
+									{/* 3. Asset (Monospace) */}
+									<div className="flex items-center w-full lg:w-48 shrink-0 mb-2 lg:mb-0 pr-4">
+										<span className="flex items-center gap-1.5 font-mono text-[12px] text-slate-700 bg-slate-100/80 px-2 py-0.5 rounded border border-slate-200 truncate max-w-full">
+											<FiTerminal
+												className="text-slate-400 shrink-0"
+												size={10}
+											/>
+											<span className="truncate">{alert.affected_asset}</span>
+										</span>
+									</div>
+
+									{/* 4. Status & Assignee */}
+									<div className="flex flex-col items-start w-full lg:w-36 shrink-0 mb-2 lg:mb-0 pr-4">
+										<Tag
+											color={getStatusColor(alert.status)}
+											className="m-0 text-[11px] font-medium uppercase tracking-wide border-0 px-2"
+										>
+											{alert.status?.replace(/_/g, " ")}
+										</Tag>
+										{/* Assignee display added here */}
+										{alert.assignee ? (
+											<div className="flex items-center mt-1 text-[11px] text-slate-500 max-w-full truncate">
+												<FiUser className="mr-1 shrink-0" size={10} />
+												<span className="truncate">
+													{alert.assignee.name ||
+														alert.assignee.email ||
+														"Assigned"}
+												</span>
+											</div>
+										) : (
+											<span className="text-[10px] text-slate-400 mt-1 italic">
+												Unassigned
+											</span>
+										)}
+									</div>
+
+									{/* 5. Timestamp (Using moment) */}
+									<div className="flex items-center w-full lg:w-28 shrink-0 text-[12px] text-slate-500 font-medium">
+										<FiClock className="mr-1.5 shrink-0 opacity-70" />
+										<span className="truncate">
+											{moment(alert.timestamp).fromNow()}
+										</span>
+									</div>
+
+									{/* 6. Action Arrow */}
+									<div className="hidden lg:flex justify-end w-10 shrink-0 text-slate-300 group-hover:text-blue-500">
+										<FiChevronRight size={18} />
+									</div>
+								</Link>
+							);
+						})}
+					</div>
+				)}
+			</div>
+
+			{/* Pagination */}
+			{info?.totalRecords > 0 && (
+				<div className="flex justify-between items-center py-2 px-1">
+					<span className="hidden sm:block text-[13px] text-slate-500 font-medium">
+						Displaying{" "}
+						{Math.min((params.page - 1) * params.limit + 1, info.totalRecords)}{" "}
+						- {Math.min(params.page * params.limit, info.totalRecords)} of{" "}
+						{info.totalRecords}
+					</span>
+					<Pagination
+						size="small"
+						current={params.page}
+						pageSize={params.limit}
+						total={info?.totalRecords}
+						onChange={handlePageChange}
+						showSizeChanger={false}
+					/>
+				</div>
+			)}
 		</div>
 	);
 };

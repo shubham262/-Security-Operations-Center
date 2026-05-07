@@ -21,17 +21,56 @@ export const statusOptions = [
 	{ value: "false_positive", label: "False Positive" },
 ];
 
-export const statusStyles = {
-	new: "processing",
-	investigating: "warning",
-	resolved: "success",
-	false_positive: "default",
+export const getSeverityStyles = (severity) => {
+	switch (severity) {
+		case "critical":
+			return {
+				dot: "bg-red-500",
+				text: "text-red-700",
+				border: "border-l-red-500",
+			};
+		case "high":
+			return {
+				dot: "bg-orange-500",
+				text: "text-orange-700",
+				border: "border-l-orange-500",
+			};
+		case "medium":
+			return {
+				dot: "bg-blue-500",
+				text: "text-blue-700",
+				border: "border-l-blue-500",
+			};
+		case "low":
+			return {
+				dot: "bg-slate-400",
+				text: "text-slate-600",
+				border: "border-l-slate-300",
+			};
+		case "info":
+			return {
+				dot: "bg-cyan-500",
+				text: "text-cyan-700",
+				border: "border-l-cyan-500",
+			};
+		default:
+			return {
+				dot: "bg-slate-300",
+				text: "text-slate-500",
+				border: "border-l-transparent",
+			};
+	}
 };
 
-export const severityStyles = {
-	critical: { color: "red", label: "CRITICAL" },
-	high: { color: "volcano", label: "HIGH" },
-	medium: { color: "blue", label: "MEDIUM" },
-	low: { color: "default", label: "LOW" },
-	info: { color: "cyan", label: "INFO" },
+export const getStatusColor = (status) => {
+	switch (status) {
+		case "new":
+			return "processing";
+		case "investigating":
+			return "warning";
+		case "resolved":
+			return "success";
+		default:
+			return "default";
+	}
 };
