@@ -1,23 +1,28 @@
 import Link from "next/link";
-import React from "react";
-import { FiShield, FiActivity, FiList, FiLogOut } from "react-icons/fi";
-const SidebarContent = ({ pathname, handleLogout, onLinkClick }) => {
-	const navLinks = [
-		{ href: "/dashboard/overview", icon: FiActivity, label: "Dashboard" },
-		{ href: "/dashboard/alerts", icon: FiList, label: "Alerts Queue" },
-	];
+import React, { useCallback } from "react";
+import { FiActivity, FiList, FiLogOut } from "react-icons/fi";
+import Logo from "../Logo";
+import { usePathname, useRouter } from "next/navigation";
+import { authClient } from "@/config/auth";
+const navLinks = [
+	{ href: "/dashboard/overview", icon: FiActivity, label: "Dashboard" },
+	{ href: "/dashboard/alerts", icon: FiList, label: "Alerts Queue" },
+];
+const SidebarContent = ({}) => {
+	const pathname = usePathname();
+	const router = useRouter();
+	const handleLogout = useCallback(async () => {
+		await authClient.signOut();
+		localStorage.clear();
+		router.push(`/`);
+	}, [router]);
 
 	return (
 		<div className="flex flex-col h-full bg-white">
-			{/* Logo Area */}
-			<div className="flex items-center space-x-2 px-6 py-6 border-b border-gray-50">
-				<FiShield size={28} className="text-blue-600" />
-				<span className="text-xl font-bold tracking-tight text-gray-900">
-					SOC<span className="text-blue-600">Triage</span>
-				</span>
+			<div className="flex items-center space-x-2 px-6 py-4.5 border-b border-gray-50">
+				<Logo />
 			</div>
 
-			{/* Navigation Links */}
 			<div className="flex-1 px-4 py-4 overflow-y-auto space-y-1 mt-2">
 				{navLinks.map((link) => {
 					const isActive = pathname?.includes(link.href);
@@ -26,7 +31,6 @@ const SidebarContent = ({ pathname, handleLogout, onLinkClick }) => {
 						<Link
 							key={link.href}
 							href={link.href}
-							onClick={onLinkClick}
 							className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors font-medium ${
 								isActive
 									? "bg-blue-50 text-blue-600"
@@ -40,7 +44,6 @@ const SidebarContent = ({ pathname, handleLogout, onLinkClick }) => {
 				})}
 			</div>
 
-			{/* Logout Area */}
 			<div className="p-4 border-t border-gray-100">
 				<button
 					onClick={handleLogout}
