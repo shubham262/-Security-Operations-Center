@@ -14,9 +14,7 @@ const DashboardLayout = ({ children }) => {
 	const dispatch = useDispatch();
 	const router = useRouter();
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-	const { data, isPending, refetch } = authClient.useSession({
-		headers: req.headers,
-	});
+	const { data, isPending, refetch } = authClient.useSession();
 
 	useEffect(() => {
 		if (!isPending && !data) {
