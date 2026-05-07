@@ -49,7 +49,11 @@ const AlertList = () => {
 	});
 
 	useEffect(() => {
-		getAllAlerts();
+		const timeout = setTimeout(() => {
+			getAllAlerts();
+		}, 500);
+
+		return () => clearTimeout(timeout);
 	}, [params]);
 
 	const getAllAlerts = useCallback(async () => {
@@ -300,12 +304,6 @@ const AlertList = () => {
 											</span>
 										</div>
 									</div>
-									{/* <div className="flex items-center w-full lg:w-28 shrink-0 text-[12px] text-slate-500 font-medium">
-										<FiClock className="mr-1.5 shrink-0 opacity-70" />
-										<span className="truncate">
-											{moment(alert.timestamp).fromNow()}
-										</span>
-									</div> */}
 
 									{/* 6. Action Arrow */}
 									<div className="hidden lg:flex justify-end w-10 shrink-0 text-slate-300 group-hover:text-blue-500">
