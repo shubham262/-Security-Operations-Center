@@ -13,7 +13,10 @@ export const handleBetterAuth = async () => {
 			enabled: true,
 		},
 		secret: process.env.BETTER_AUTH_SECRET,
-		baseURL: process.env.BETTER_AUTH_URL,
+		baseURL:
+			process.env.ENVIRONMENT === "prod"
+				? process.env.BETTER_AUTH_URL
+				: "http://localhost:3001",
 		trustedOrigins: [process.env.FRONTEND_DASHBOARD, "http://localhost:3000"],
 		databaseHooks: {
 			user: {
