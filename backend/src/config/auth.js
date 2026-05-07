@@ -18,6 +18,16 @@ export const handleBetterAuth = async () => {
 				? process.env.BETTER_AUTH_URL
 				: "http://localhost:3001",
 		trustedOrigins: [process.env.FRONTEND_DASHBOARD, "http://localhost:3000"],
+		advanced: {
+			crossSubDomainCookies: {
+				enabled: true,
+			},
+			defaultCookieAttributes: {
+				sameSite: "none",
+				secure: true,
+				httpOnly: true,
+			},
+		},
 		databaseHooks: {
 			user: {
 				create: {

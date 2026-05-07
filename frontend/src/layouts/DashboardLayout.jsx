@@ -14,7 +14,9 @@ const DashboardLayout = ({ children }) => {
 	const dispatch = useDispatch();
 	const router = useRouter();
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-	const { data, isPending, refetch } = authClient.useSession();
+	const { data, isPending, refetch } = authClient.useSession({
+		headers: req.headers,
+	});
 
 	useEffect(() => {
 		if (!isPending && !data) {
@@ -26,9 +28,11 @@ const DashboardLayout = ({ children }) => {
 	}, [isPending, dispatch, data, router]);
 
 	if (isPending) {
-		<div className="flex h-screen bg-blue-50/30 overflow-hidden font-sans">
-			<Spin />
-		</div>;
+		return (
+			<div className="flex h-screen bg-blue-50/30 overflow-hidden font-sans">
+				<Spin />
+			</div>
+		);
 	}
 
 	return (
