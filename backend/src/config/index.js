@@ -2,7 +2,10 @@ import { MongoClient } from "mongodb";
 import mongoose from "mongoose";
 
 const database = process.env.DATABASE;
-const MONGO_URI = process.env.MONGO_URI;
+const MONGO_URI =
+	process.env.ENVIRONMENT === "prod"
+		? process.env.MONGO_URI_PROD
+		: process.env.MONGO_URI_DEV || "mongodb://127.0.0.1:27017/soc";
 
 let cachedConnection = null;
 export const handleMongoDBConnection = async () => {

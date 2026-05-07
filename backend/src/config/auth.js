@@ -1,5 +1,3 @@
-import dotenv from "dotenv";
-dotenv.config();
 import { betterAuth } from "better-auth";
 import { handleMongoDBConnection } from "./index.js";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
@@ -16,7 +14,7 @@ export const handleBetterAuth = async () => {
 		},
 		secret: process.env.BETTER_AUTH_SECRET,
 		baseURL: process.env.BETTER_AUTH_URL,
-		trustedOrigins: ["http://localhost:3000"],
+		trustedOrigins: [process.env.FRONTEND_DASHBOARD, "http://localhost:3000"],
 		databaseHooks: {
 			user: {
 				create: {
