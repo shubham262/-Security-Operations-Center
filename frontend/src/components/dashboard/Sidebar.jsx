@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { authClient } from "@/config/auth";
 const navLinks = [
 	{ href: "/dashboard/overview", icon: FiActivity, label: "Dashboard" },
-	{ href: "/dashboard/alerts", icon: FiList, label: "Alerts Queue" },
+	{ href: "/dashboard/alerts", icon: FiList, label: "Alerts " },
 ];
 const SidebarContent = ({}) => {
 	const pathname = usePathname();
