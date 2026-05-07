@@ -210,3 +210,28 @@ export const getAlertStats = async (req, res) => {
 			.json({ success: false, error: "Failed to fetch dashboard statistics" });
 	}
 };
+
+
+export const handleEventStream = async (req, res) => {
+	res.setHeader("Content-Type", "text/event-stream");
+	res.setHeader("Cache-Control", "no-cache");
+	res.setHeader("Connection", "keep-alive");
+	res.setHeader(
+		"Access-Control-Allow-Origin",
+		process.env.ENVIRONMENT === "prod"
+			? process.env.FRONTEND_DASHBOARD
+			: "http://localhost:3000"
+	);
+
+	const onAlertUpdate = () => {
+		res.write(`data: ${JSON.stringify({ type: "REVALIDATE_LIST" })}\n\n`);
+	};
+
+	// Start listening to the hub
+	eventHub.on("ALERT_UPDATED", onAlertUpdate);
+
+	// Clean up when the client closes the connection
+	req.on("close", () => {
+		eventHub.off("ALERT_UPDATED", onAlertUpdate);
+	});
+};
