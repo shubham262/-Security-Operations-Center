@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/preserve-manual-memoization */
 "use client";
 import Logo from "@/components/Logo";
 import { authClient } from "@/config/auth";
@@ -117,9 +116,18 @@ const Login = () => {
 					</div>
 				</div>
 
-				{/* Card Footer */}
-				<div className="bg-gray-50 px-8 py-4 text-center border-t border-gray-100 flex flex-col items-center">
-					<span className="text-xs text-gray-500">
+				{/* Card Footer - Signup Link */}
+				<div className="bg-gray-50 px-8 py-5 text-center border-t border-gray-100 flex flex-col items-center space-y-3">
+					<span className="text-sm text-gray-600">
+						Don't have an account?{" "}
+						<Link
+							href="/signup"
+							className="text-blue-600 hover:text-blue-800 font-semibold transition-colors"
+						>
+							Sign up here
+						</Link>
+					</span>
+					<span className="text-xs text-gray-400">
 						Authorized personnel only. All access is logged.
 					</span>
 				</div>
@@ -128,7 +136,7 @@ const Login = () => {
 			{/* Back to Home Link */}
 			<Link
 				href="/"
-				className="mt-8 text-sm text-gray-500 hover:text-blue-600 font-medium flex items-center space-x-1"
+				className="mt-8 text-sm text-gray-500 hover:text-blue-600 font-medium flex items-center space-x-1 transition-colors"
 			>
 				<span>← Back to Homepage</span>
 			</Link>

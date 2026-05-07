@@ -1,5 +1,5 @@
-/* eslint-disable react-hooks/preserve-manual-memoization */
 "use client";
+import Logo from "@/components/Logo";
 import { authClient } from "@/config/auth";
 import { Button, Input, message, Typography } from "antd";
 import Link from "next/link";
@@ -56,19 +56,10 @@ const Signup = () => {
 
 	return (
 		<div className="flex flex-col min-h-screen bg-blue-50/50 items-center justify-center p-6 font-sans">
-			{/* Logo Header */}
-			<Link
-				href="/"
-				className="flex items-center space-x-2 text-blue-600 mb-8 hover:opacity-80 transition-opacity"
-			>
-				<FiShield size={36} />
-				<span className="text-3xl font-bold tracking-tight text-gray-900">
-					SOC<span className="text-blue-600">Triage</span>
-				</span>
-			</Link>
+			<Logo />
 
 			{/* Signup Card */}
-			<div className="w-full max-w-md bg-white rounded-2xl shadow-xl shadow-blue-900/5 border border-gray-100 overflow-hidden flex flex-col">
+			<div className="w-full max-w-md bg-white rounded-2xl shadow-xl shadow-blue-900/5 border border-gray-100 overflow-hidden flex flex-col mt-8">
 				{/* Card Header */}
 				<div className="flex flex-col items-center px-8 pt-10 pb-6 border-b border-gray-50 text-center">
 					<Title level={3} className="!m-0 !text-gray-900 !font-bold">
