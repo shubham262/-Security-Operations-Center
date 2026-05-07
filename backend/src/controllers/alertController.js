@@ -1,4 +1,5 @@
 import { formatName } from "../helpers/index.js";
+import eventHub from "../lib/eventHub.js";
 import db from "../models/index.js";
 import moment from "moment";
 const { Alert } = db;
@@ -126,7 +127,7 @@ export const updateAlertById = async (req, res) => {
 		if (!alert) {
 			return res.status(404).json({ error: "Alert not found" });
 		}
-
+		eventHub.emit("ALERT_UPDATED");
 		return res.status(200).json({
 			success: true,
 			message: "Alert updated successfully",

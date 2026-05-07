@@ -67,6 +67,24 @@ const AlertList = () => {
 	}, [params]);
 
 	useEffect(() => {
+		const eventSource = new EventSource(
+			`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/alert/event/stream`
+		);
+
+		eventSource.onmessage = (event) => {
+			const signal = JSON.parse(event.data);
+
+			if (signal.type === "REVALIDATE_LIST") {
+				console.log("Signal received: Refreshing background data...");
+
+				getAllAlerts();
+			}
+		};
+
+		return () => eventSource.close();
+	}, []);
+
+	useEffect(() => {
 		const query = new URLSearchParams();
 
 		Object.entries(params).forEach(([key, value]) => {
@@ -89,7 +107,7 @@ const AlertList = () => {
 	const getAllAlerts = useCallback(async () => {
 		try {
 			if (info?.refreshLoading) return;
-			setInfo((prev) => ({ ...prev, loading: true, refreshLoading: true }));
+			setInfo((prev) => ({ ...prev, refreshLoading: true }));
 			const { data = [], meta = {} } = await fetchAllAlerts({ ...params });
 			setInfo((prev) => ({
 				...prev,

@@ -62,6 +62,22 @@ const OverView = () => {
 	});
 
 	useEffect(() => {
+		const eventSource = new EventSource(
+			`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/alert/event/stream`
+		);
+
+		eventSource.onmessage = (event) => {
+			const signal = JSON.parse(event.data);
+
+			if (signal.type === "REVALIDATE_LIST") {
+				handleFetchStats();
+			}
+		};
+
+		return () => eventSource.close();
+	}, []);
+
+	useEffect(() => {
 		handleFetchStats();
 	}, []);
 	const handleFetchStats = useCallback(async () => {
