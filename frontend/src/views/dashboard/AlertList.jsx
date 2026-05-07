@@ -17,27 +17,25 @@ import {
 import Link from "next/link";
 import { fetchAllAlerts } from "@/service/alerts";
 import { refresh } from "next/cache";
+import {
+	categoryOptions,
+	severityOptions,
+	statusOptions,
+	severityStyles,
+	statusStyles,
+} from "@/helper/constant";
 
 const { Option } = Select;
 
-// --- Dictionaries for Styling ---
-const severityStyles = {
-	critical: { color: "red", label: "CRITICAL" },
-	high: { color: "volcano", label: "HIGH" },
-	medium: { color: "blue", label: "MEDIUM" },
-	low: { color: "default", label: "LOW" },
-	info: { color: "cyan", label: "INFO" },
-};
-
-const statusStyles = {
-	new: "processing",
-	investigating: "warning",
-	resolved: "success",
-	false_positive: "default",
-};
-
 const AlertList = () => {
 	const [info, setInfo] = useState({
+		loading: true,
+		refreshLoading: false,
+		totalRecords: 0,
+		data: null,
+	});
+
+	const [params, setParams] = useState({
 		page: 1,
 		limit: 10,
 		search: "",
@@ -46,14 +44,11 @@ const AlertList = () => {
 		category: [],
 		sortBy: "timestamp",
 		sortOrder: "desc",
-		totalRecords: 0,
-		loading: true,
-		refreshLoading: false,
 	});
 
 	useEffect(() => {
 		getAllAlerts();
-	}, []);
+	}, [params]);
 
 	const getAllAlerts = useCallback(async () => {
 		try {
@@ -61,17 +56,10 @@ const AlertList = () => {
 				return;
 			}
 			setInfo((prev) => ({ ...prev, loading: true, refreshLoading: true }));
-			const params = {
-				page: info?.page,
-				search: info?.search,
-				severity: info?.severity,
-				status: info?.status,
-				category: info?.category,
-				sortBy: info?.sortBy,
-				sortOrder: info?.sortOrder,
-				limit: info?.limit,
+			const paramsPayload = {
+				...params,
 			};
-			const { data = [], meta = {} } = await fetchAllAlerts(params);
+			const { data = [], meta = {} } = await fetchAllAlerts(paramsPayload);
 			setInfo((prev) => ({
 				...prev,
 				data,
@@ -86,14 +74,14 @@ const AlertList = () => {
 				refreshLoading: false,
 			}));
 		}
-	}, [info]);
+	}, [params]);
 
 	const handleFilterChange = (key, value) => {
-		setInfo((prev) => ({ ...prev, [key]: value, page: 1 }));
+		setParams((prev) => ({ ...prev, [key]: value, page: 1 }));
 	};
 
 	const handleTableChange = (pagination) => {
-		setInfo((prev) => ({
+		setParams((prev) => ({
 			...prev,
 			page: pagination.current,
 			limit: pagination.pageSize,
@@ -221,7 +209,6 @@ const AlertList = () => {
 				styles={{ body: { padding: "16px" } }}
 			>
 				<div className="flex flex-col gap-4">
-					{/* Top Row: Search & Sort */}
 					<div className="flex flex-col md:flex-row gap-4 justify-between">
 						<Input
 							size="middle"
@@ -229,7 +216,7 @@ const AlertList = () => {
 							prefix={<FiSearch className="text-gray-400" />}
 							className="md:max-w-md"
 							allowClear
-							value={info.search}
+							value={params.search}
 							onChange={(e) => handleFilterChange("search", e.target.value)}
 						/>
 
@@ -237,7 +224,7 @@ const AlertList = () => {
 							<span className="text-sm text-gray-500">Sort by:</span>
 							<Select
 								size="middle"
-								value={info.sortBy}
+								value={params.sortBy}
 								onChange={(val) => handleFilterChange("sortBy", val)}
 								className="w-32"
 							>
@@ -246,7 +233,7 @@ const AlertList = () => {
 							</Select>
 							<Select
 								size="middle"
-								value={info.sortOrder}
+								value={params.sortOrder}
 								onChange={(val) => handleFilterChange("sortOrder", val)}
 								className="w-24"
 							>
@@ -269,13 +256,7 @@ const AlertList = () => {
 							className="flex-1 min-w-[150px]"
 							maxTagCount="responsive"
 							onChange={(val) => handleFilterChange("severity", val)}
-							options={[
-								{ value: "critical", label: "Critical" },
-								{ value: "high", label: "High" },
-								{ value: "medium", label: "Medium" },
-								{ value: "low", label: "Low" },
-								{ value: "info", label: "Info" },
-							]}
+							options={severityOptions}
 						/>
 						<Select
 							mode="multiple"
@@ -284,14 +265,7 @@ const AlertList = () => {
 							className="flex-1 min-w-[150px]"
 							maxTagCount="responsive"
 							onChange={(val) => handleFilterChange("category", val)}
-							options={[
-								{ value: "malware", label: "Malware" },
-								{ value: "phishing", label: "Phishing" },
-								{ value: "unauthorized_access", label: "Unauthorized Access" },
-								{ value: "data_exfiltration", label: "Data Exfiltration" },
-								{ value: "policy_violation", label: "Policy Violation" },
-								{ value: "suspicious_login", label: "Suspicious Login" },
-							]}
+							options={categoryOptions}
 						/>
 						<Select
 							mode="multiple"
@@ -300,12 +274,7 @@ const AlertList = () => {
 							className="flex-1 min-w-[150px]"
 							maxTagCount="responsive"
 							onChange={(val) => handleFilterChange("status", val)}
-							options={[
-								{ value: "new", label: "New" },
-								{ value: "investigating", label: "Investigating" },
-								{ value: "resolved", label: "Resolved" },
-								{ value: "false_positive", label: "False Positive" },
-							]}
+							options={statusOptions}
 						/>
 					</div>
 				</div>
@@ -318,8 +287,8 @@ const AlertList = () => {
 					loading={info?.loading}
 					onChange={handleTableChange}
 					pagination={{
-						current: info.page,
-						pageSize: info.limit,
+						current: params.page,
+						pageSize: params.limit,
 						total: info?.totalRecords,
 						showSizeChanger: true,
 						showTotal: (total) => `Total ${total} alerts`,
