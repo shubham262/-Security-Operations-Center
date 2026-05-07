@@ -25,6 +25,9 @@ const Login = () => {
 
 	const handlSubmit = useCallback(async () => {
 		try {
+			if (info?.loading) {
+				return;
+			}
 			if (!info?.email || !info?.password) {
 				return message.error("Please enter email and password");
 			}
@@ -45,7 +48,7 @@ const Login = () => {
 		} finally {
 			setInfo((prev) => ({ ...prev, loading: true }));
 		}
-	}, [info?.email, info?.password, router]);
+	}, [info?.email, info?.loading, info?.password, router]);
 
 	return (
 		<div className="flex flex-col min-h-screen bg-blue-50/50 items-center justify-center p-6 font-sans">
