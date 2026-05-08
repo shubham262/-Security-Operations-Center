@@ -23,9 +23,6 @@ export const handleBetterAuth = async () => {
 			"http://localhost:3000",
 		],
 		advanced: {
-			crossSubDomainCookies: {
-				enabled: true,
-			},
 			defaultCookieAttributes: {
 				sameSite: "none",
 				secure: true,
