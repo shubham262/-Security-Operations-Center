@@ -26,15 +26,15 @@ export const handleBetterAuth = async () => {
 		// 		httpOnly: true,
 		// 	},
 		// },
-		databaseHooks: {
-			user: {
-				create: {
-					after: async (user) => {
-						await seedInitialAlerts(user?.id);
-					},
-				},
-			},
-		},
+		// databaseHooks: {
+		// 	user: {
+		// 		create: {
+		// 			after: async (user) => {
+		// 				await seedInitialAlerts(user?.id);
+		// 			},
+		// 		},
+		// 	},
+		// },
 	});
 	return auth;
 };
