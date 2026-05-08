@@ -19,7 +19,7 @@ export const handleBetterAuth = async () => {
 				: "http://localhost:3001",
 		trustedOrigins: [
 			"https://security-operations-center.vercel.app",
-			/^https:\/\/.*\.vercel\.app$/,
+			"https://*.vercel.app",
 			"http://localhost:3000",
 		],
 		advanced: {
