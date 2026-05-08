@@ -18,7 +18,7 @@ export const handleBetterAuth = async () => {
 				? process.env.BETTER_AUTH_URL
 				: "http://localhost:3001",
 		trustedOrigins: [
-			process.env.FRONTEND_DASHBOARD,
+			"https://security-operations-center.vercel.app",
 			/^https:\/\/.*\.vercel\.app$/,
 			"http://localhost:3000",
 		],
