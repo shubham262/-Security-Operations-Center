@@ -19,13 +19,12 @@ export const handleBetterAuth = async () => {
 				: "http://localhost:3001",
 		trustedOrigins: [
 			"https://security-operations-center.vercel.app",
+			"https://security-operations-center-git-master-shubham262s-projects.vercel.app",
+			"https://security-operations-center-ijypcse3c-shubham262s-projects.vercel.app",
 			"https://*.vercel.app",
 			"http://localhost:3000",
 		],
 		advanced: {
-			crossSubDomainCookies: {
-				enabled: true,
-			},
 			defaultCookieAttributes: {
 				sameSite: "none",
 				secure: true,

@@ -45,7 +45,7 @@ const Login = () => {
 			console.log("error==>handlSubmit", error);
 			message.error("Invalid credentials or something went wrong");
 		} finally {
-			setInfo((prev) => ({ ...prev, loading: true }));
+			setInfo((prev) => ({ ...prev, loading: false }));
 		}
 	}, [info?.email, info?.loading, info?.password, router]);
 

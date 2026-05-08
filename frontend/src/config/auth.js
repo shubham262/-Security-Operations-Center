@@ -4,4 +4,7 @@ export const authClient = createAuthClient({
 		process.env.NEXT_PUBLIC_ENVIRONMENT === "prod"
 			? process.env.NEXT_PUBLIC_BACKEND_URL
 			: "http://localhost:3001",
+	fetchOptions: {
+		credentials: "include",
+	},
 });
