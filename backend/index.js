@@ -3,7 +3,8 @@ import cors from "cors";
 import { handleBetterAuth } from "./src/config/auth.js";
 import { toNodeHandler } from "better-auth/node";
 import alertRoute from "./src/routes/alert.js";
-
+import healthRoute from "./src/routes/health.js";
+import { initiateHealthPingMechanism } from "./src/helpers/healthPing.js";
 const app = express();
 const auth = await handleBetterAuth();
 const PORT = process.env.PORT || 3001;
@@ -17,9 +18,10 @@ app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use("/api/auth", toNodeHandler(auth));
-
+app.use("/api/health", healthRoute);
 app.use("/api/alert", alertRoute);
 
 app.listen(PORT, () => {
 	console.log(`Server started at port ${PORT}`);
+	initiateHealthPingMechanism();
 });
