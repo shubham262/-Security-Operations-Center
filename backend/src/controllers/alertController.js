@@ -211,7 +211,6 @@ export const getAlertStats = async (req, res) => {
 	}
 };
 
-
 export const handleEventStream = async (req, res) => {
 	res.setHeader("Content-Type", "text/event-stream");
 	res.setHeader("Cache-Control", "no-cache");
@@ -219,7 +218,7 @@ export const handleEventStream = async (req, res) => {
 	res.setHeader(
 		"Access-Control-Allow-Origin",
 		process.env.ENVIRONMENT === "prod"
-			? process.env.FRONTEND_DASHBOARD
+			? "https://soc.aetherr.in"
 			: "http://localhost:3000"
 	);
 
