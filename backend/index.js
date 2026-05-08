@@ -23,13 +23,9 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// Handle OPTIONS preflight BEFORE Better Auth
-app.options("*", cors(corsOptions));
-
-// Better Auth must come BEFORE express.json()
-app.all("/api/auth/*", toNodeHandler(auth));
-
 app.use(express.json());
+app.use("/api/auth", toNodeHandler(auth));
+
 app.use("/api/alert", alertRoute);
 
 app.listen(PORT, () => {
