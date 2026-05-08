@@ -17,7 +17,11 @@ export const handleBetterAuth = async () => {
 			process.env.ENVIRONMENT === "prod"
 				? process.env.BETTER_AUTH_URL
 				: "http://localhost:3001",
-		trustedOrigins: [process.env.FRONTEND_DASHBOARD, "http://localhost:3000"],
+		trustedOrigins: [
+			process.env.FRONTEND_DASHBOARD,
+			/^https:\/\/.*\.vercel\.app$/,
+			"http://localhost:3000",
+		],
 		advanced: {
 			crossSubDomainCookies: {
 				enabled: true,

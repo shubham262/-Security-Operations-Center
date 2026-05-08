@@ -9,7 +9,11 @@ const auth = await handleBetterAuth();
 const PORT = process.env.PORT || 3001;
 app.use(
 	cors({
-		origin: ["http://localhost:3000", process.env.FRONTEND_DASHBOARD],
+		origin: [
+			"http://localhost:3000",
+			process.env.FRONTEND_DASHBOARD,
+			/^https:\/\/.*\.vercel\.app$/,
+		],
 		credentials: true,
 	})
 );
