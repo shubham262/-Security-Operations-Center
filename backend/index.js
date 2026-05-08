@@ -11,11 +11,7 @@ const PORT = process.env.PORT || 3001;
 app.set("trust proxy", 1);
 
 const corsOptions = {
-	origin: [
-		"https://security-operations-center.vercel.app",
-		"http://localhost:3000",
-		/^https:\/\/.*\.vercel\.app$/,
-	],
+	origin: ["https://soc.aetherr.in", "http://localhost:3000"],
 	credentials: true,
 	methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 	allowedHeaders: ["Content-Type", "Authorization"],

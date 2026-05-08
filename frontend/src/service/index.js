@@ -3,7 +3,7 @@ import axios from "axios";
 const api = axios.create({
 	baseURL:
 		process.env.NEXT_PUBLIC_ENVIRONMENT === "prod"
-			? process.env.NEXT_PUBLIC_BACKEND_URL
+			? "https://soc-api.aetherr.in"
 			: "http://localhost:3001",
 	headers: {
 		"Content-type": "application/json",

@@ -13,24 +13,19 @@ export const handleBetterAuth = async () => {
 			enabled: true,
 		},
 		secret: process.env.BETTER_AUTH_SECRET,
+
 		baseURL:
 			process.env.ENVIRONMENT === "prod"
-				? process.env.BETTER_AUTH_URL
+				? "https://soc-api.aetherr.in"
 				: "http://localhost:3001",
-		trustedOrigins: [
-			"https://security-operations-center.vercel.app",
-			"https://security-operations-center-git-master-shubham262s-projects.vercel.app",
-			"https://security-operations-center-ijypcse3c-shubham262s-projects.vercel.app",
-			"https://*.vercel.app",
-			"http://localhost:3000",
-		],
-		advanced: {
-			defaultCookieAttributes: {
-				sameSite: "none",
-				secure: true,
-				httpOnly: true,
-			},
-		},
+		trustedOrigins: ["https://soc.aetherr.in", "http://localhost:3000"],
+		// advanced: {
+		// 	defaultCookieAttributes: {
+		// 		sameSite: "none",
+		// 		secure: true,
+		// 		httpOnly: true,
+		// 	},
+		// },
 		databaseHooks: {
 			user: {
 				create: {
