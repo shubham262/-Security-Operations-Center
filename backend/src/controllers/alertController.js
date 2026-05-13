@@ -119,6 +119,8 @@ export const updateAlertById = async (req, res) => {
 		if (Object.keys(filteredUpdates).length === 0) {
 			return res.status(400).json({ error: "No valid update fields provided" });
 		}
+
+		filteredUpdates.timestamp = new Date();
 		const alert = await Alert.findByIdAndUpdate(id, filteredUpdates, {
 			new: true,
 			runValidators: true,

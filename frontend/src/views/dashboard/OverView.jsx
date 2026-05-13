@@ -63,7 +63,10 @@ const OverView = () => {
 
 	useEffect(() => {
 		const eventSource = new EventSource(
-			`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/alert/event/stream`
+			`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/alert/event/stream`,
+			{
+				withCredentials: true,
+			}
 		);
 
 		eventSource.onmessage = (event) => {

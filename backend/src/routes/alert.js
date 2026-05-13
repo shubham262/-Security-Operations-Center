@@ -13,5 +13,5 @@ router.get("/", checkUserAuth, getAlerts);
 router.get("/alert-stats", checkUserAuth, getAlertStats);
 router.get("/:id", checkUserAuth, getAlertById);
 router.patch("/:id", checkUserAuth, updateAlertById);
-router.get("/event/stream", handleEventStream);
+router.get("/event/stream", checkUserAuth, handleEventStream);
 export default router;
