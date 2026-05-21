@@ -23,5 +23,5 @@ app.use("/api/alert", alertRoute);
 
 app.listen(PORT, () => {
 	console.log(`Server started at port ${PORT}`);
-	initiateHealthPingMechanism();
+	// initiateHealthPingMechanism();
 });

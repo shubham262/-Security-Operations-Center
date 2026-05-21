@@ -167,7 +167,7 @@ export const getAlertStats = async (req, res) => {
 						{ $count: "count" },
 					],
 					resolved24h: [
-						{ $match: { status: "resolved", timestamp: { $gte: oneDayAgo } } },
+						{ $match: { status: "resolved", updatedAt: { $gte: oneDayAgo } } },
 						{ $count: "count" },
 					],
 				},
